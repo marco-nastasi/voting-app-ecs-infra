@@ -92,6 +92,17 @@ variable "common_tags" {
   }
 }
 
+variable "s3_bucket_outputs_name" {
+  type        = string
+  description = "Name of the S3 bucket to store the outputs"
+}
+
+variable "s3_bucket_outputs_path" {
+  type        = string
+  description = "Path in the S3 bucket to store the outputs"
+  default     = "terraform/outputs.json"
+}
+
 locals {
   vpc_endpoints_names = {
     "ecr-dkr"        = "com.amazonaws.${var.aws_region}.ecr.dkr"

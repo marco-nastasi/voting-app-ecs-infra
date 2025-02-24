@@ -64,8 +64,8 @@ resource "local_file" "outputs" {
 }
 
 resource "aws_s3_object" "upload_outputs" {
-  bucket = "voting-app-ecs-20250220250223223306715900000001"
-  key    = "terraform/outputs.json"
+  bucket = var.s3_bucket_outputs_name
+  key    = var.s3_bucket_outputs_path
   source = local_file.outputs.filename
 
   tags = merge(
