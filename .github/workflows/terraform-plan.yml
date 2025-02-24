@@ -1,0 +1,212 @@
+name: 1 - Prepare Terraform plan
+
+# Top level permissions of the workflow
+permissions: {}
+
+# Will run on direct push or PR to "main" branch
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  format-check:
+    # This job will perform format checks
+    name: Terraform format check
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        # Checks-out the repository under $GITHUB_WORKSPACE, so follow-up steps can access it
+        id: checkout-code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Terraform
+        # Use Terraform specific version
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: ${{ vars.TF_VERSION }}
+
+      - name: Check Terraform Formatting
+        # Perform format checks, fail if changes are needed
+        id: format-check
+        run: terraform fmt -check -recursive
+
+  validate:
+    # This job will perform code validation
+    name: Validate Terraform code
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        # Checks-out the repository under $GITHUB_WORKSPACE, so follow-up steps can access it
+        id: checkout-code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Terraform
+        # Use Terraform specific version
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: ${{ vars.TF_VERSION }}
+
+      - name: Configure AWS OIDC credentials
+        # Use Github OIDC to authenticate to AWS, assumming role
+        id: configure-aws
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+          aws-region: ${{ vars.TF_VAR_REGION }}
+
+      - name: Terraform Init
+        # Initialize Terraform backend with custom parameters, download providers
+        id: terraform-init
+        run: |
+          terraform init \
+          -backend-config="bucket=${{ secrets.TFSTATE_BUCKET_NAME }}" \
+          -backend-config="key=${{ secrets.TFSTATE_BUCKET_PATH }}" \
+          -backend-config="region=${{ vars.TF_VAR_REGION }}" \
+          -backend-config="dynamodb_table=${{ secrets.TFSTATE_TABLE_NAME }}"
+
+      - name: Validate Terraform
+        # Perform Terraform code validation
+        id: terraform-validate
+        run: terraform validate
+
+  linter:
+    # This job will perform code lint
+    name: Lint Terraform code
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        # Checks-out the repository under $GITHUB_WORKSPACE, so follow-up steps can access it
+        id: checkout-code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up TFLint
+        id: setup-tflint
+        uses: terraform-linters/setup-tflint@8093687ecc9dcbfa88d07c103ad4176739a7287e
+        with:
+          tflint_version: "latest"
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+
+      - name: Init TFLint
+        id: init-tflint
+        run: tflint --init
+
+      - name: Run TFLint
+        id: run-tflint
+        run: tflint
+
+  scan:
+    # This job will perform security scan with Checkov
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    needs: [format-check, validate, linter]
+
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout code
+        # Checks-out the repository under $GITHUB_WORKSPACE, so follow-up steps can access it
+        id: checkout-code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Checkov GitHub Action
+        id: security-scan-checkov
+        uses: bridgecrewio/checkov-action@50b959918599bb15388ef018e2f51c5e83e2d0e2
+        with:
+          # This will add both a CLI output to the console and create a results.sarif file
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+        
+      - name: Upload SARIF file
+        id: upload-security-scan-results
+        uses: github/codeql-action/upload-sarif@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4
+        
+        # Results are generated only on a success or failure
+        # this is required since GitHub by default won't run the next step
+        # when the previous one has failed. Security checks that do not pass will 'fail'.
+        # An alternative is to add `continue-on-error: true` to the previous step
+        # Or 'soft_fail: true' to checkov.
+        if: success() || failure()
+        with:
+          sarif_file: results.sarif
+
+  plan:
+    # This job will create the Terraform plan and upload it to S3
+    needs: [scan]
+    name: Create Terraform plan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        # Checks-out the repository under $GITHUB_WORKSPACE, so follow-up steps can access it
+        id: checkout-code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+    
+      - name: Setup Terraform
+        # Use Terraform specific version
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: ${{ vars.TF_VERSION }}
+    
+      - name: Configure AWS OIDC credentials
+        # Use Github OIDC to authenticate to AWS, assumming role
+        id: configure-aws
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+          aws-region: ${{ vars.TF_VAR_REGION }}
+    
+      - name: Terraform Init
+        # Initialize Terraform backend with custom parameters, download providers
+        id: terraform-init
+        run: |
+          terraform init \
+          -backend-config="bucket=${{ secrets.TFSTATE_BUCKET_NAME }}" \
+          -backend-config="key=${{ secrets.TFSTATE_BUCKET_PATH }}" \
+          -backend-config="region=${{ vars.TF_VAR_REGION }}" \
+          -backend-config="dynamodb_table=${{ secrets.TFSTATE_TABLE_NAME }}"
+    
+      - name: Terraform Plan
+        # Prepare Terraform plan using secret variables securely. Save the plan to file
+        id: terraform-plan
+        run: |
+          terraform plan  \
+          -var="my_own_public_ip=${{ secrets.MY_PUBLIC_IP }}" \
+          -var="availability_zone"=${{ vars.TF_VAR_AVAILABILITY_ZONE }} \
+          -var="region"=${{ vars.TF_VAR_REGION }} \
+          -out=output.tfplan
+
+      - name: Upload Plan File to S3
+        # Upload plan to S3, so other workflows can use it later
+        id: upload-s3
+        run: |
+          aws s3 cp output.tfplan \
+          s3://${{ secrets.TFSTATE_BUCKET_NAME }}/plan/output.tfplan
