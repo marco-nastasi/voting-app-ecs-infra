@@ -19,6 +19,7 @@ resource "aws_security_group" "lb_sg" {
 # Allow inbound traffic from the internet to the ALB SG on port 80
 resource "aws_vpc_security_group_ingress_rule" "allow_port_ingress_alb" {
   for_each          = var.alb_allowed_ports
+  description       = "Allow inbound traffic from the internet to the ALB SG on port ${each.value}"
   security_group_id = aws_security_group.lb_sg.id
   from_port         = each.value
   ip_protocol       = "tcp"
@@ -28,6 +29,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_port_ingress_alb" {
 
 # Allow all egress traffic from the ALB SG
 resource "aws_vpc_security_group_egress_rule" "allow_all_egress_alb" {
+  description       = "Allow all egress traffic from the ALB SG"
   security_group_id = aws_security_group.lb_sg.id
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
@@ -40,6 +42,8 @@ resource "aws_lb" "alb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
   subnets            = [for subnet in aws_subnet.public : subnet.id]
+
+  drop_invalid_header_fields = true
 
   tags = merge(
     var.common_tags,

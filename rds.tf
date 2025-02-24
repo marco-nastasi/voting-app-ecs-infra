@@ -63,6 +63,10 @@ resource "aws_db_instance" "postgres" {
   engine_version    = "14"
   instance_class    = "db.t4g.micro"
   allocated_storage = 8
+  storage_encrypted = true
+
+  # Allow logs to be sent to CloudWatch
+  enabled_cloudwatch_logs_exports = ["general", "error", "slowquery"]
 
   # Database settings
   db_name  = "postgres"
@@ -77,13 +81,15 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
 
   # Backup and maintenance
-  backup_retention_period = 1
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "Mon:04:00-Mon:05:00"
+  backup_retention_period    = 1
+  backup_window              = "03:00-04:00"
+  maintenance_window         = "Mon:04:00-Mon:05:00"
+  auto_minor_version_upgrade = true
 
   # Additional settings
-  publicly_accessible = false
-  skip_final_snapshot = true
+  publicly_accessible   = false
+  skip_final_snapshot   = true
+  copy_tags_to_snapshot = true
 
   tags = merge(
     var.common_tags,

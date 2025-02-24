@@ -15,6 +15,18 @@ resource "aws_vpc" "main" {
   )
 }
 
+# Default Security Group
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-default-sg"
+    },
+  )
+}
+
 # Public Subnets
 resource "aws_subnet" "public" {
   count                   = var.number_of_availability_zones
