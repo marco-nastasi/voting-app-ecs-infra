@@ -15,6 +15,7 @@ resource "aws_security_group" "ecs_sg" {
 # Allow inbound traffic from the ALB SG to the ECS SG
 resource "aws_vpc_security_group_ingress_rule" "allow_port_ingress_ecs" {
   for_each                     = var.ecs_allowed_ports
+  description                  = "Allow inbound traffic from the ALB SG to the ECS SG on port ${each.value}"
   security_group_id            = aws_security_group.ecs_sg.id
   ip_protocol                  = "tcp"
   from_port                    = each.value
@@ -24,6 +25,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_port_ingress_ecs" {
 
 # Allow all egress traffic from the ECS SG
 resource "aws_vpc_security_group_egress_rule" "allow_all_egress_ecs" {
+  description       = "Allow all egress traffic from the ECS SG"
   security_group_id = aws_security_group.ecs_sg.id
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
@@ -92,7 +94,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "logs:DescribeLogStreams"
         ]
         Resource = [
-          "*"
+          "arn:aws:logs:*:*:*"
         ]
       },
       {
@@ -101,17 +103,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "ecs:ExecuteCommand",
           "ecs:DescribeTasks"
         ]
-        Resource = "*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "ssmmessages:CreateControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel"
-        ]
-        Resource = "*"
+        Resource = aws_ecs_cluster.cluster.arn
       },
       {
         Effect = "Allow"
@@ -121,14 +113,18 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
         ],
-        Resource = "*"
+        Resource = [
+          aws_ecr_repository.vote.arn,
+          aws_ecr_repository.result.arn,
+          aws_ecr_repository.worker.arn
+        ]
       },
       {
         Effect = "Allow"
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = "*"
+        Resource = aws_db_instance.postgres.master_user_secret[0].secret_arn
       }
     ]
   })
@@ -187,6 +183,7 @@ resource "aws_ecs_task_definition" "vote_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
+      readonlyRootFilesystem = true
     }
   ])
 
@@ -242,6 +239,7 @@ resource "aws_ecs_task_definition" "worker_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
+      readonlyRootFilesystem = true
     }
   ])
 
@@ -300,6 +298,7 @@ resource "aws_ecs_task_definition" "result_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
+      readonlyRootFilesystem = true
     }
   ])
 
