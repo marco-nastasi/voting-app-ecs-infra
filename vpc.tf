@@ -3,7 +3,7 @@
 #############################
 
 resource "aws_vpc" "main" {
-  #checkov:skip=CKV2_AWS_11 VPC flow logs should be enabled in all VPCs
+  # checkov:skip=CKV2_AWS_11:VPC flow logs should be enabled in all VPCs
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -30,6 +30,7 @@ resource "aws_default_security_group" "default" {
 
 # Public Subnets
 resource "aws_subnet" "public" {
+  # checkov:skip=CKV_AWS_130:Public subnet can assign public IP addresses
   count                   = var.number_of_availability_zones
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)

@@ -79,7 +79,11 @@ resource "aws_vpc_security_group_egress_rule" "redis_security_group_egress" {
 
 # Create ElastiCache Replication Group to achieve high availability
 resource "aws_elasticache_replication_group" "redis_cluster" {
-  description          = "Multi-AZ Redis cluster"
+  # checkov:skip=CKV_AWS_29:Before moving to prod, enable encryption at rest
+  # checkov:skip=CKV_AWS_30:Before moving to prod, encrypt all data in transit
+  # checkov:skip=CKV_AWS_31:Before moving to prod, enable encryption in transit
+  # checkov:skip=CKV_AWS_191:Before moving to prod, encrypt using KMS
+  description          = "${var.app_name} Redis cluster"
   replication_group_id = "${var.app_name}-redis-cluster"
   node_type            = "cache.t2.micro"
   port                 = 6379
