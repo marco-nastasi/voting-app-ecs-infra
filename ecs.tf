@@ -144,6 +144,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attachment" {
 # There is one task definition per container
 resource "aws_ecs_task_definition" "vote_task_definition" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
   family                   = "${var.app_name}-vote"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -183,7 +184,6 @@ resource "aws_ecs_task_definition" "vote_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      readonlyRootFilesystem = true
     }
   ])
 
@@ -198,6 +198,7 @@ resource "aws_ecs_task_definition" "vote_task_definition" {
 
 resource "aws_ecs_task_definition" "worker_task_definition" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
   family                   = "${var.app_name}-worker"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -240,7 +241,6 @@ resource "aws_ecs_task_definition" "worker_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      readonlyRootFilesystem = true
     }
   ])
 
@@ -255,6 +255,7 @@ resource "aws_ecs_task_definition" "worker_task_definition" {
 
 resource "aws_ecs_task_definition" "result_task_definition" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
   family                   = "${var.app_name}-result"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -300,7 +301,6 @@ resource "aws_ecs_task_definition" "result_task_definition" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      readonlyRootFilesystem = true
     }
   ])
 
