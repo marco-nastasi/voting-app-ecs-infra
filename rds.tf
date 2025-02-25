@@ -72,7 +72,7 @@ resource "aws_db_instance" "postgres" {
   storage_encrypted = true
 
   # Allow logs to be sent to CloudWatch
-  enabled_cloudwatch_logs_exports = ["general", "error", "slowquery"]
+  enabled_cloudwatch_logs_exports = ["postgresql"]
 
   # Database settings
   db_name  = "postgres"
