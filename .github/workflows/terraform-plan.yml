@@ -199,7 +199,6 @@ jobs:
         id: terraform-plan
         run: |
           terraform plan  \
-          -var="region"=${{ vars.TF_VAR_REGION }} \
           -var="s3_bucket_outputs_name"=${{ secrets.TFSTATE_BUCKET_NAME }} \
           -out=output.tfplan
 
