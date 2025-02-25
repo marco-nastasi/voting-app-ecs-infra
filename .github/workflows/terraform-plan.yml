@@ -199,9 +199,8 @@ jobs:
         id: terraform-plan
         run: |
           terraform plan  \
-          -var="my_own_public_ip=${{ secrets.MY_PUBLIC_IP }}" \
-          -var="availability_zone"=${{ vars.TF_VAR_AVAILABILITY_ZONE }} \
           -var="region"=${{ vars.TF_VAR_REGION }} \
+          -var="s3_bucket_outputs_name"=${{ secrets.TFSTATE_BUCKET_NAME }} \
           -out=output.tfplan
 
       - name: Upload Plan File to S3
