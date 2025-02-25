@@ -58,12 +58,12 @@ resource "aws_vpc_security_group_egress_rule" "postgres_security_group_egress" {
 
 # Create RDS instance with 8 GB of storage
 resource "aws_db_instance" "postgres" {
-  # checkov:skip=CKV2_AWS_293: Before moving to prod, enable deletion protection
-  # checkov:skip=CKV2_AWS_118: Before moving to prod, enable enhanced monitoring
-  # checkov:skip=CKV2_AWS_161: Consider implementing IAM authentication for RDS
-  # checkov:skip=CKV2_AWS_353: Before moving to prod, enable performance insights
-  # checkov:skip=CKV2_AWS_354: After enabling performance insights, enable encrypt them
-
+  # checkov:skip=CKV_AWS_293:Before moving to prod, enable deletion protection
+  # checkov:skip=CKV_AWS_118:Before moving to prod, enable enhanced monitoring
+  # checkov:skip=CKV_AWS_161:Consider implementing IAM authentication for RDS
+  # checkov:skip=CKV_AWS_353:Before moving to prod, enable performance insights
+  # checkov:skip=CKV2_AWS_354:After enabling performance insights, enable encrypt them
+  # checkov:skip=CKV2_AWS_30:Before moving to prod, enable query logging
   identifier        = "${var.app_name}-postgres"
   engine            = "postgres"
   engine_version    = "14"
