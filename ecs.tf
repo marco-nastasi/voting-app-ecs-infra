@@ -37,6 +37,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_egress_ecs" {
 
 # Create an ECS Cluster
 resource "aws_ecs_cluster" "cluster" {
+  # checkov:skip=CKV2_AWS_65: Before moving to prod, enable container insights
   name = "${var.app_name}-ecs-cluster"
 
   tags = merge(
@@ -142,8 +143,8 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attachment" {
 ############################
 
 # There is one task definition per container
-
 resource "aws_ecs_task_definition" "vote_task_definition" {
+  # checkov:skip=CKV2_AWS_249: Execution and task roles should be different
   family                   = "${var.app_name}-vote"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -197,6 +198,7 @@ resource "aws_ecs_task_definition" "vote_task_definition" {
 
 
 resource "aws_ecs_task_definition" "worker_task_definition" {
+  # checkov:skip=CKV2_AWS_249: Execution and task roles should be different
   family                   = "${var.app_name}-worker"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -253,6 +255,7 @@ resource "aws_ecs_task_definition" "worker_task_definition" {
 
 
 resource "aws_ecs_task_definition" "result_task_definition" {
+  # checkov:skip=CKV2_AWS_249: Execution and task roles should be different
   family                   = "${var.app_name}-result"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]

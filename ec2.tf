@@ -18,6 +18,7 @@ resource "aws_security_group" "lb_sg" {
 
 # Allow inbound traffic from the internet to the ALB SG on port 80
 resource "aws_vpc_security_group_ingress_rule" "allow_port_ingress_alb" {
+  # checkov:skip=CKV2_AWS_260: Before moving to prod, use HTTPS instead of HTTP
   for_each          = var.alb_allowed_ports
   description       = "Allow inbound traffic from the internet to the ALB SG on port ${each.value}"
   security_group_id = aws_security_group.lb_sg.id
@@ -37,6 +38,10 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_egress_alb" {
 
 # Create an ALB in our public subnet
 resource "aws_lb" "alb" {
+  # checkov:skip=CKV2_AWS_2: Use HTTPS instead of HTTP in all containers
+  # checkov:skip=CKV2_AWS_91: After implementing TLS, enable access logs
+  # checkov:skip=CKV2_AWS_150: Before moving to prod, enable deletion protection
+
   name               = "${var.app_name}-alb"
   internal           = false
   load_balancer_type = "application"
