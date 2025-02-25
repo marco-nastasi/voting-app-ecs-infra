@@ -50,4 +50,4 @@ jobs:
         id: terraform-destroy
         run: |
           terraform destroy -auto-approve  \
-            -var="my_own_public_ip=${{ secrets.MY_PUBLIC_IP }}"
+            -var="s3_bucket_outputs_name"=${{ secrets.TFSTATE_BUCKET_NAME }}
