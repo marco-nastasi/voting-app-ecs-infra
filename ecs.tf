@@ -115,17 +115,6 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "ecr:BatchGetImage",
         ],
         Resource = [
-          aws_ecr_repository.vote.arn,
-          aws_ecr_repository.result.arn,
-          aws_ecr_repository.worker.arn
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-        ],
-        Resource = [
           "*"
         ]
       },
