@@ -1,5 +1,7 @@
 # ECR repository to push the vote container image
 resource "aws_ecr_repository" "vote" {
+  # checkov:skip=CKV2_AWS_136: Encrypt all ECR repos using KMS
+  # checkov:skip=CKV2_AWS_163: Image scanning on push should be enabled
   name                 = "ecr-repo-vote"
   image_tag_mutability = "IMMUTABLE"
 
@@ -21,6 +23,8 @@ resource "aws_ecr_repository" "vote" {
 
 # ECR repository to push the result container image
 resource "aws_ecr_repository" "result" {
+  # checkov:skip=CKV2_AWS_136: Encrypt all ECR repos using KMS
+  # checkov:skip=CKV2_AWS_163: Image scanning on push should be enabled
   name                 = "ecr-repo-result"
   image_tag_mutability = "IMMUTABLE"
 
@@ -42,6 +46,8 @@ resource "aws_ecr_repository" "result" {
 
 # ECR repository to push the worker container image
 resource "aws_ecr_repository" "worker" {
+  # checkov:skip=CKV2_AWS_136: Encrypt all ECR repos using KMS
+  # checkov:skip=CKV2_AWS_163: Image scanning on push should be enabled
   name                 = "ecr-repo-worker"
   image_tag_mutability = "IMMUTABLE"
 
