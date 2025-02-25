@@ -115,7 +115,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "ecr:BatchGetImage",
         ],
         Resource = [
-          "*"
+          "arn:aws:ecr:us-east-1:${data.aws_caller_identity.current.account_id}:repository/*"
         ]
       },
       {
