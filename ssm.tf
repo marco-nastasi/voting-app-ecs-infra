@@ -47,7 +47,7 @@ resource "aws_ssm_parameter" "redis_host_address" {
   # checkov:skip=CKV2_AWS_34:This is not sensitive data
   # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
   name  = "/voting-app-ecs/redis_host_address"
-  type  = "SecureString"
+  type  = "String"
   value = aws_elasticache_replication_group.redis_cluster.primary_endpoint_address
 
   tags = merge(
