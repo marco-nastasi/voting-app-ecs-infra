@@ -194,7 +194,7 @@ resource "aws_ecs_service" "service_vote" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.alb_tg_vote.arn
-    container_name   = "vote"
+    container_name   = "placeholder"
     container_port   = var.vote_container_external_port
   }
 
@@ -223,7 +223,7 @@ resource "aws_ecs_service" "service_result" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.alb_tg_result.arn
-    container_name   = "result"
+    container_name   = "placeholder"
     container_port   = var.result_container_external_port
   }
 
