@@ -185,3 +185,49 @@ resource "aws_ssm_parameter" "ecs_cluster_id" {
   type  = "String"
   value = aws_ecs_cluster.cluster.id
 }
+
+
+resource "aws_ssm_parameter" "ecs_service_vote_name" {
+  # checkov:skip=CKV2_AWS_34:This is not sensitive data
+  # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
+  name  = "/voting-app-ecs/ecs_service_vote_name"
+  type  = "String"
+  value = aws_ecs_service.service_vote.name
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-ssm-ecs-service-vote-name"
+    },
+  ) 
+}
+
+resource "aws_ssm_parameter" "ecs_service_worker_name" {
+  # checkov:skip=CKV2_AWS_34:This is not sensitive data
+  # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
+  name  = "/voting-app-ecs/ecs_service_worker_name"
+  type  = "String"
+  value = aws_ecs_service.service_worker.name
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-ssm-ecs-service-worker-name"
+    },
+  )
+}
+
+resource "aws_ssm_parameter" "ecs_service_result_name" {
+  # checkov:skip=CKV2_AWS_34:This is not sensitive data
+  # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
+  name  = "/voting-app-ecs/ecs_service_result_name"
+  type  = "String"
+  value = aws_ecs_service.service_result.name
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-ssm-ecs-service-result-name"
+    },
+  )
+}
