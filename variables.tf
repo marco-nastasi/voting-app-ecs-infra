@@ -22,12 +22,6 @@ variable "app_name" {
   default     = "voting-app-ecs"
 }
 
-variable "vote_container_external_port" {
-  type        = number
-  description = "External port for vote container"
-  default     = 8080
-}
-
 variable "alb_allowed_ports" {
   type        = map(string)
   description = "Allowed ports in the Application Load Balancer"

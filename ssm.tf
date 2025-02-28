@@ -199,7 +199,7 @@ resource "aws_ssm_parameter" "ecs_service_vote_name" {
     {
       Name = "${var.app_name}-ssm-ecs-service-vote-name"
     },
-  ) 
+  )
 }
 
 resource "aws_ssm_parameter" "ecs_service_worker_name" {
