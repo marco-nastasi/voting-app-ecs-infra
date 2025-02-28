@@ -157,6 +157,16 @@ resource "aws_ecs_task_definition" "placeholder" {
           containerPort = 80
           hostPort      = 80
           protocol      = "tcp"
+        },
+        {
+          containerPort = 8080
+          hostPort      = 8080
+          protocol      = "tcp"
+        },
+        {
+          containerPort = 8081
+          hostPort      = 8081
+          protocol      = "tcp"
         }
       ]
     }
