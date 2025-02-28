@@ -1,5 +1,6 @@
 # Security Group for ECS tasks
 resource "aws_security_group" "ecs_sg" {
+  # checkov:skip=CKV2_AWS_5:Should remain unattached until the ECS service is created
   name        = "${var.app_name}-ecs-sg"
   description = "SG for ECS tasks"
   vpc_id      = aws_vpc.main.id
