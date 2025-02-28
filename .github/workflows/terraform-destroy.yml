@@ -49,5 +49,4 @@ jobs:
         # Destroy resources
         id: terraform-destroy
         run: |
-          terraform destroy -auto-approve  \
-            -var="s3_bucket_outputs_name"=${{ secrets.TFSTATE_BUCKET_NAME }}
+          terraform destroy -auto-approve
