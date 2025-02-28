@@ -61,14 +61,3 @@ variable "common_tags" {
     Version   = "1.0"
   }
 }
-
-variable "s3_bucket_outputs_name" {
-  type        = string
-  description = "Name of the S3 bucket to store the outputs"
-}
-
-variable "s3_bucket_outputs_path" {
-  type        = string
-  description = "Path in the S3 bucket to store the outputs"
-  default     = "terraform/outputs.json"
-}
