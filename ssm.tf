@@ -177,3 +177,11 @@ resource "aws_ssm_parameter" "ecs_target_group_result_arn" {
     },
   )
 }
+
+resource "aws_ssm_parameter" "ecs_cluster_id" {
+  # checkov:skip=CKV2_AWS_34:This is not sensitive data
+  # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
+  name  = "/voting-app-ecs/ecs_cluster_id"
+  type  = "String"
+  value = aws_ecs_cluster.cluster.id
+}
