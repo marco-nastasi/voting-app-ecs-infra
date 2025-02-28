@@ -62,7 +62,7 @@ resource "aws_ssm_parameter" "postgres_primary_address" {
   # checkov:skip=CKV2_AWS_34:This is not sensitive data
   # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
   name  = "/voting-app-ecs/postgres_primary_address"
-  type  = "SecureString"
+  type  = "String"
   value = aws_db_instance.postgres.address
 
   tags = merge(
@@ -75,8 +75,9 @@ resource "aws_ssm_parameter" "postgres_primary_address" {
 
 resource "aws_ssm_parameter" "postgres_secret_arn" {
   # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
+  # checkov:skip=CKV2_AWS_34:This is not sensitive data
   name  = "/voting-app-ecs/postgres_secret_arn"
-  type  = "SecureString"
+  type  = "String"
   value = "${aws_db_instance.postgres.master_user_secret[0].secret_arn}:password::"
 
   tags = merge(
