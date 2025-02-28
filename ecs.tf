@@ -136,3 +136,123 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = aws_iam_policy.ecs_task_policy.arn
 }
+
+resource "aws_ecs_task_definition" "placeholder" {
+  # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
+  family                   = "placeholder-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  container_definitions = jsonencode([
+    {
+      name      = "placeholder"
+      image     = "amazon/amazon-ecs-sample"
+      cpu       = 10
+      memory    = 256
+      essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-task-placeholder"
+    },
+  )
+}
+
+#############################
+# ECS Service               #
+#############################
+
+# Create an ECS service to run the task definition.
+# The service is associated with the ALB target group so that traffic coming
+# into the ALB is forwarded to the "vote" container (port 80).
+
+# Create an ECS service for the vote container
+resource "aws_ecs_service" "service_vote" {
+  name    = "${var.app_name}-service-vote"
+  cluster = aws_ecs_cluster.cluster.id
+
+  task_definition = aws_ecs_task_definition.placeholder.arn
+  desired_count   = 0
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [for subnet in aws_subnet.private : subnet.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.alb_tg_vote.arn
+    container_name   = "vote"
+    container_port   = var.vote_container_external_port
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-service-vote"
+    },
+  )
+}
+
+# Create an ECS service for the result container
+resource "aws_ecs_service" "service_result" {
+  name    = "${var.app_name}-service-result"
+  cluster = aws_ecs_cluster.cluster.id
+
+  task_definition = aws_ecs_task_definition.placeholder.arn
+  desired_count   = 0
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [for subnet in aws_subnet.private : subnet.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.alb_tg_result.arn
+    container_name   = "result"
+    container_port   = var.result_container_external_port
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-service-result"
+    },
+  )
+}
+
+resource "aws_ecs_service" "service_worker" {
+  name    = "${var.app_name}-service-worker"
+  cluster = aws_ecs_cluster.cluster.id
+
+  task_definition = aws_ecs_task_definition.placeholder.arn
+  desired_count   = 0
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [for subnet in aws_subnet.private : subnet.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-service-worker"
+    },
+  )
+}

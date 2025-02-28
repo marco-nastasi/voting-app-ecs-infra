@@ -28,12 +28,6 @@ variable "vote_container_external_port" {
   default     = 8080
 }
 
-variable "result_container_external_port" {
-  type        = number
-  description = "External port for result container"
-  default     = 8081
-}
-
 variable "alb_allowed_ports" {
   type        = map(string)
   description = "Allowed ports in the Application Load Balancer"
@@ -50,6 +44,18 @@ variable "ecs_allowed_ports" {
     "port_1" = "8080"
     "port_2" = "8081"
   }
+}
+
+variable "vote_container_external_port" {
+  type        = number
+  description = "External port for vote container"
+  default     = 8080
+}
+
+variable "result_container_external_port" {
+  type        = number
+  description = "External port for result container"
+  default     = 8081
 }
 
 variable "common_tags" {
