@@ -198,9 +198,7 @@ jobs:
         # Prepare Terraform plan using secret variables securely. Save the plan to file
         id: terraform-plan
         run: |
-          terraform plan  \
-          -var="s3_bucket_outputs_name"=${{ secrets.TFSTATE_BUCKET_NAME }} \
-          -out=output.tfplan
+          terraform plan -out=output.tfplan
 
       - name: Upload Plan File to S3
         # Upload plan to S3, so other workflows can use it later
