@@ -22,18 +22,6 @@ variable "app_name" {
   default     = "voting-app-ecs"
 }
 
-variable "container_cpu_capacity" {
-  type        = string
-  description = "Capacity of CPU for ECS tasks"
-  default     = "256"
-}
-
-variable "container_memory_capacity" {
-  type        = string
-  description = "Capacity of memory for ECS tasks"
-  default     = "512"
-}
-
 variable "vote_container_external_port" {
   type        = number
   description = "External port for vote container"
@@ -44,24 +32,6 @@ variable "result_container_external_port" {
   type        = number
   description = "External port for result container"
   default     = 8081
-}
-
-variable "number_of_vote_containers" {
-  type        = number
-  description = "Number of vote containers to run in ECS"
-  default     = 1
-}
-
-variable "number_of_result_containers" {
-  type        = number
-  description = "Number of result containers to run in ECS"
-  default     = 1
-}
-
-variable "number_of_worker_containers" {
-  type        = number
-  description = "Number of worker containers to run in ECS"
-  default     = 1
 }
 
 variable "alb_allowed_ports" {
@@ -101,13 +71,4 @@ variable "s3_bucket_outputs_path" {
   type        = string
   description = "Path in the S3 bucket to store the outputs"
   default     = "terraform/outputs.json"
-}
-
-locals {
-  vpc_endpoints_names = {
-    "ecr-dkr"        = "com.amazonaws.${var.aws_region}.ecr.dkr"
-    "cloudwatch"     = "com.amazonaws.${var.aws_region}.logs"
-    "ecr-api"        = "com.amazonaws.${var.aws_region}.ecr.api"
-    "secretsmanager" = "com.amazonaws.${var.aws_region}.secretsmanager"
-  }
 }

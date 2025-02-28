@@ -1,5 +1,3 @@
-
-
 ##############################
 # These VPC endpoints allow the
 # tasks to privately connect to
@@ -58,4 +56,13 @@ resource "aws_vpc_endpoint" "s3" {
       Name = "${var.app_name}-s3-endpoint"
     },
   )
+}
+
+locals {
+  vpc_endpoints_names = {
+    "ecr-dkr"        = "com.amazonaws.${var.aws_region}.ecr.dkr"
+    "cloudwatch"     = "com.amazonaws.${var.aws_region}.logs"
+    "ecr-api"        = "com.amazonaws.${var.aws_region}.ecr.api"
+    "secretsmanager" = "com.amazonaws.${var.aws_region}.secretsmanager"
+  }
 }
