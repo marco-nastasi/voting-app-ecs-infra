@@ -143,8 +143,8 @@ resource "aws_ecs_task_definition" "vote_task" {
   family                   = "voting-app-ecs"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "0"
-  memory                   = "256"
+  cpu                      = "256"
+  memory                   = "512"
   container_definitions = jsonencode([
     {
       name      = "vote"
@@ -175,8 +175,8 @@ resource "aws_ecs_task_definition" "worker_task" {
   family                   = "voting-app-ecs"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "0"
-  memory                   = "256"
+  cpu                      = "256"
+  memory                   = "512"
   container_definitions = jsonencode([
     {
       name      = "worker"
@@ -200,8 +200,8 @@ resource "aws_ecs_task_definition" "result_task" {
   family                   = "voting-app-ecs"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "0"
-  memory                   = "256"
+  cpu                      = "256"
+  memory                   = "512"
   container_definitions = jsonencode([
     {
       name      = "result"
