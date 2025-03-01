@@ -9,8 +9,6 @@ This repository provides a modular and secure Terraform configuration to deploy 
 - [Modularity](#modularity)
 - [Project Structure](#project-structure)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
