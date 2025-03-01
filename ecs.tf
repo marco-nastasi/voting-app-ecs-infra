@@ -137,44 +137,91 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attachment" {
   policy_arn = aws_iam_policy.ecs_task_policy.arn
 }
 
-resource "aws_ecs_task_definition" "placeholder" {
+resource "aws_ecs_task_definition" "vote_task" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
   # checkov:skip=CKV_AWS_336:App needs root access to FS
-  family                   = "placeholder-task"
+  family                   = "voting-app-ecs"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "0"
+  memory                   = "256"
   container_definitions = jsonencode([
     {
-      name      = "placeholder"
+      name      = "vote"
       image     = "amazon/amazon-ecs-sample"
-      cpu       = 10
+      cpu       = 0
       memory    = 256
       essential = true
       portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-          protocol      = "tcp"
-        },
         {
           containerPort = 8080
           hostPort      = 8080
           protocol      = "tcp"
         },
-        {
-          containerPort = 8081
-          hostPort      = 8081
-          protocol      = "tcp"
-        }
       ]
     }
   ])
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.app_name}-task-placeholder"
+      Name = "${var.app_name}-vote-task"
+    },
+  )
+}
+
+resource "aws_ecs_task_definition" "worker_task" {
+  # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
+  family                   = "voting-app-ecs"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "0"
+  memory                   = "256"
+  container_definitions = jsonencode([
+    {
+      name      = "worker"
+      image     = "amazon/amazon-ecs-sample"
+      cpu       = 0
+      memory    = 256
+      essential = true
+    }
+  ])
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-vote-task"
+    },
+  )
+}
+
+resource "aws_ecs_task_definition" "result_task" {
+  # checkov:skip=CKV_AWS_249:Execution and task roles should be different
+  # checkov:skip=CKV_AWS_336:App needs root access to FS
+  family                   = "voting-app-ecs"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "0"
+  memory                   = "256"
+  container_definitions = jsonencode([
+    {
+      name      = "result"
+      image     = "amazon/amazon-ecs-sample"
+      cpu       = 0
+      memory    = 256
+      essential = true
+      portMappings = [
+        {
+          containerPort = 8081
+          hostPort      = 8081
+          protocol      = "tcp"
+        },
+      ]
+    }
+  ])
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.app_name}-vote-task"
     },
   )
 }
@@ -192,7 +239,7 @@ resource "aws_ecs_service" "service_vote" {
   name    = "${var.app_name}-service-vote"
   cluster = aws_ecs_cluster.cluster.id
 
-  task_definition = aws_ecs_task_definition.placeholder.arn
+  task_definition = aws_ecs_task_definition.vote_task.arn
   desired_count   = 0
   launch_type     = "FARGATE"
 
@@ -221,7 +268,7 @@ resource "aws_ecs_service" "service_result" {
   name    = "${var.app_name}-service-result"
   cluster = aws_ecs_cluster.cluster.id
 
-  task_definition = aws_ecs_task_definition.placeholder.arn
+  task_definition = aws_ecs_task_definition.result_task.arn
   desired_count   = 0
   launch_type     = "FARGATE"
 
@@ -249,7 +296,7 @@ resource "aws_ecs_service" "service_worker" {
   name    = "${var.app_name}-service-worker"
   cluster = aws_ecs_cluster.cluster.id
 
-  task_definition = aws_ecs_task_definition.placeholder.arn
+  task_definition = aws_ecs_task_definition.worker_task.arn
   desired_count   = 0
   launch_type     = "FARGATE"
 
