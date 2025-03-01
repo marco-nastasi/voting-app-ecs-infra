@@ -3,7 +3,7 @@ resource "aws_ssm_parameter" "ecr_repo_vote_id" {
   # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
   name  = "/voting-app-ecs/ecr_repo_vote_id"
   type  = "String"
-  value = aws_ecr_repository.vote.arn
+  value = aws_ecr_repository.vote.name
 
   tags = merge(
     var.common_tags,
@@ -183,7 +183,7 @@ resource "aws_ssm_parameter" "ecs_cluster_id" {
   # checkov:skip=CKV_AWS_337:Avoiding usage of KMS CMKs
   name  = "/voting-app-ecs/ecs_cluster_id"
   type  = "String"
-  value = aws_ecs_cluster.cluster.id
+  value = aws_ecs_cluster.cluster.name
 }
 
 
