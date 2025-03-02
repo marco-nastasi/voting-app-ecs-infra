@@ -255,6 +255,14 @@ resource "aws_ecs_service" "service_vote" {
     container_port   = var.vote_container_external_port
   }
 
+  # Ignore changes to the task_definition attribute
+  # so that CI/CD updates won't be reverted on subsequent Terraform runs.
+  lifecycle {
+    ignore_changes = [
+      task_definition
+    ]
+  }
+
   tags = merge(
     var.common_tags,
     {
@@ -284,6 +292,14 @@ resource "aws_ecs_service" "service_result" {
     container_port   = var.result_container_external_port
   }
 
+  # Ignore changes to the task_definition attribute
+  # so that CI/CD updates won't be reverted on subsequent Terraform runs.
+  lifecycle {
+    ignore_changes = [
+      task_definition
+    ]
+  }
+
   tags = merge(
     var.common_tags,
     {
@@ -304,6 +320,14 @@ resource "aws_ecs_service" "service_worker" {
     subnets          = [for subnet in aws_subnet.private : subnet.id]
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = false
+  }
+
+  # Ignore changes to the task_definition attribute
+  # so that CI/CD updates won't be reverted on subsequent Terraform runs.
+  lifecycle {
+    ignore_changes = [
+      task_definition
+    ]
   }
 
   tags = merge(
