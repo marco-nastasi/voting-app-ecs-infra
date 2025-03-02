@@ -140,7 +140,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attachment" {
 resource "aws_ecs_task_definition" "vote_task" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
   # checkov:skip=CKV_AWS_336:App needs root access to FS
-  family                   = "voting-app-ecs"
+  family                   = "voting-app-ecs-vote"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -172,7 +172,7 @@ resource "aws_ecs_task_definition" "vote_task" {
 resource "aws_ecs_task_definition" "worker_task" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
   # checkov:skip=CKV_AWS_336:App needs root access to FS
-  family                   = "voting-app-ecs"
+  family                   = "voting-app-ecs-worker"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -197,7 +197,7 @@ resource "aws_ecs_task_definition" "worker_task" {
 resource "aws_ecs_task_definition" "result_task" {
   # checkov:skip=CKV_AWS_249:Execution and task roles should be different
   # checkov:skip=CKV_AWS_336:App needs root access to FS
-  family                   = "voting-app-ecs"
+  family                   = "voting-app-ecs-result"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -251,7 +251,7 @@ resource "aws_ecs_service" "service_vote" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.alb_tg_vote.arn
-    container_name   = "placeholder"
+    container_name   = "vote"
     container_port   = var.vote_container_external_port
   }
 
@@ -280,7 +280,7 @@ resource "aws_ecs_service" "service_result" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.alb_tg_result.arn
-    container_name   = "placeholder"
+    container_name   = "result"
     container_port   = var.result_container_external_port
   }
 
