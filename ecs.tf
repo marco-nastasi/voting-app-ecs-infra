@@ -259,7 +259,8 @@ resource "aws_ecs_service" "service_vote" {
   # so that CI/CD updates won't be reverted on subsequent Terraform runs.
   lifecycle {
     ignore_changes = [
-      task_definition
+      task_definition,
+      desired_count,
     ]
   }
 
@@ -296,7 +297,8 @@ resource "aws_ecs_service" "service_result" {
   # so that CI/CD updates won't be reverted on subsequent Terraform runs.
   lifecycle {
     ignore_changes = [
-      task_definition
+      task_definition,
+      desired_count,
     ]
   }
 
@@ -326,7 +328,8 @@ resource "aws_ecs_service" "service_worker" {
   # so that CI/CD updates won't be reverted on subsequent Terraform runs.
   lifecycle {
     ignore_changes = [
-      task_definition
+      task_definition,
+      desired_count,
     ]
   }
 
